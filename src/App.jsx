@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { socket } from './socket';
+import Countdown from './Countdown';
 import './App.css';
 
 function App() {
@@ -59,7 +60,7 @@ function App() {
       <h2>피파 또 점검이네</h2>
       <p>소켓 연결 상태: {connected ? '🟢 연결됨' : '🔴 끊김'}</p>
       <p>현재 {usersCount}명이 기다리는 중</p>
-      {status && <p>서버 상태: {status.state}</p>}
+      {status && <Countdown status={status} />}
 
       {!joined ? (
         <div>
