@@ -23,8 +23,9 @@ function App() {
     function onStatusUpdate(data) {
       setStatus(data);
     }
-    function onUsersCount(count) {
-      setUsersCount(count);
+    function onUsersCount(data) {
+      // 서버가 { gameId, count } 형태로 보냄 (기존 number에서 변경됨)
+      setUsersCount(data.count);
     }
     function onChatMessage(msg) {
       setMessages((prev) => [...prev, msg]);
@@ -60,7 +61,7 @@ function App() {
       <h2>피파 또 점검이네</h2>
       <p>소켓 연결 상태: {connected ? '🟢 연결됨' : '🔴 끊김'}</p>
       <p>현재 {usersCount}명이 기다리는 중</p>
-      {status && <Countdown status={status} />}
+      <Countdown status={status} />
 
       {!joined ? (
         <div>
@@ -73,14 +74,7 @@ function App() {
         </div>
       ) : (
         <div>
-          <div
-            style={{
-              border: '1px solid #ccc',
-              height: 200,
-              overflowY: 'auto',
-              padding: 8,
-            }}
-          >
+          <div style={{ border: '1px solid #ccc', height: 200, overflowY: 'auto', padding: 8 }}>
             {messages.map((m, i) => (
               <div key={i}>
                 <b>[{m.nickname}]</b> {m.message}
