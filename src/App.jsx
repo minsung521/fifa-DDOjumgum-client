@@ -1,38 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { socket } from './socket';
-import Countdown from './Countdown';
+import StatusPanel from './StatusPanel';
+import ChatPanel from './ChatPanel';
 import './App.css';
 
+let messageIdCounter = 0;
+const nextMessageId = () => `m${++messageIdCounter}`;
+
 function App() {
-  const [connected, setConnected] = useState(false);
+  const [connectionState, setConnectionState] = useState('disconnected'); // 'connected' | 'disconnected' | 'reconnecting'
   const [status, setStatus] = useState(null);
   const [usersCount, setUsersCount] = useState(0);
   const [messages, setMessages] = useState([]);
   const [nickname, setNickname] = useState('');
-  const [inputMessage, setInputMessage] = useState('');
   const [joined, setJoined] = useState(false);
+
+  const nicknameRef = useRef(nickname);
+  nicknameRef.current = nickname;
 
   useEffect(() => {
     function onConnect() {
-      setConnected(true);
-      console.log('소켓 연결됨:', socket.id);
+      setConnectionState('connected');
     }
     function onDisconnect() {
-      setConnected(false);
+      setConnectionState('disconnected');
+    }
+    function onReconnectAttempt() {
+      setConnectionState('reconnecting');
     }
     function onStatusUpdate(data) {
       setStatus(data);
     }
     function onUsersCount(data) {
-      // 서버가 { gameId, count } 형태로 보냄 (기존 number에서 변경됨)
+      // 서버가 { gameId, count } 객체로 보냄
       setUsersCount(data.count);
     }
     function onChatMessage(msg) {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [
+        ...prev,
+        { id: nextMessageId(), time: Date.now(), ...msg },
+      ]);
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.io.on('reconnect_attempt', onReconnectAttempt);
     socket.on('status:update', onStatusUpdate);
     socket.on('users:count', onUsersCount);
     socket.on('chat:message', onChatMessage);
@@ -40,56 +52,42 @@ function App() {
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.io.off('reconnect_attempt', onReconnectAttempt);
       socket.off('status:update', onStatusUpdate);
       socket.off('users:count', onUsersCount);
       socket.off('chat:message', onChatMessage);
     };
   }, []);
 
-  const handleJoin = () => {
-    if (nickname.trim()) setJoined(true);
+  const handleJoin = (nick) => {
+    setNickname(nick);
+    setJoined(true);
+    // 로컬 전용 입장 안내 (서버에 다른 유저의 입장/퇴장을 알리는 이벤트가
+    // 아직 없어서, 우선 본인 입장만 표시함 — 자세한 내용은 대화 마지막 참고)
+    setMessages((prev) => [
+      ...prev,
+      { id: nextMessageId(), system: true, text: `${nick}님이 입장했어요` },
+    ]);
   };
 
-  const handleSend = () => {
-    if (!inputMessage.trim()) return;
-    socket.emit('chat:message', { nickname, message: inputMessage });
-    setInputMessage('');
+  const handleSend = (text) => {
+    socket.emit('chat:message', { nickname: nicknameRef.current, message: text });
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
-      <h2>피파 또 점검이네</h2>
-      <p>소켓 연결 상태: {connected ? '🟢 연결됨' : '🔴 끊김'}</p>
-      <p>현재 {usersCount}명이 기다리는 중</p>
-      <Countdown status={status} />
-
-      {!joined ? (
-        <div>
-          <input
-            placeholder="닉네임을 입력하세요"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <button onClick={handleJoin}>입장</button>
-        </div>
-      ) : (
-        <div>
-          <div style={{ border: '1px solid #ccc', height: 200, overflowY: 'auto', padding: 8 }}>
-            {messages.map((m, i) => (
-              <div key={i}>
-                <b>[{m.nickname}]</b> {m.message}
-              </div>
-            ))}
-          </div>
-          <input
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="메시지를 입력하세요..."
-          />
-          <button onClick={handleSend}>전송</button>
-        </div>
-      )}
+    <div className="app-shell">
+      <StatusPanel
+        status={status}
+        usersCount={usersCount}
+        connectionState={connectionState}
+      />
+      <ChatPanel
+        messages={messages}
+        joined={joined}
+        nickname={nickname}
+        onJoin={handleJoin}
+        onSend={handleSend}
+      />
     </div>
   );
 }
