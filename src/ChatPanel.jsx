@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import JoinToastStack from './JoinToastStack';
 
 const BOTTOM_THRESHOLD = 48; // px
 
@@ -9,7 +10,15 @@ function formatMessageTime(ts) {
   return `${h}:${m}`;
 }
 
-export default function ChatPanel({ messages, joined, nickname, onJoin, onSend }) {
+export default function ChatPanel({
+  messages,
+  joined,
+  nickname,
+  onJoin,
+  onSend,
+  joinToasts,
+  onExpireToast,
+}) {
   const [entering, setEntering] = useState(false); // 닉네임 입력 오버레이(모달/바텀시트) 노출 여부
   const [nicknameInput, setNicknameInput] = useState('');
   const [messageInput, setMessageInput] = useState('');
@@ -78,6 +87,8 @@ export default function ChatPanel({ messages, joined, nickname, onJoin, onSend }
 
   return (
     <section className="chat-panel">
+      <JoinToastStack toasts={joinToasts} onExpire={onExpireToast} />
+
       <div className="chat-list" ref={listRef} onScroll={handleScroll}>
         {messages.length === 0 && (
           <p className="chat-empty">아직 대화가 없어요. 첫 메시지를 남겨보세요</p>

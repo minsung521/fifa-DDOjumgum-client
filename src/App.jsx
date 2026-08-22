@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { socket, GAME_ID } from './socket';
 import StatusPanel from './StatusPanel';
 import ChatPanel from './ChatPanel';
@@ -7,11 +7,19 @@ import './App.css';
 let messageIdCounter = 0;
 const nextMessageId = () => `m${++messageIdCounter}`;
 
+let toastIdCounter = 0;
+const nextToastId = () => `t${++toastIdCounter}`;
+
+// 동시 입장이 몰려도 화면을 뒤덮지 않도록 최신 토스트만 유지
+const MAX_VISIBLE_JOIN_TOASTS = 2;
+
 function App() {
   const [connectionState, setConnectionState] = useState('disconnected'); // 'connected' | 'disconnected' | 'reconnecting'
   const [status, setStatus] = useState(null);
   const [usersCount, setUsersCount] = useState(0);
   const [messages, setMessages] = useState([]);
+  // 입장 알림 토스트 — 채팅 메시지(messages)와는 완전히 별도로 관리, 채팅 로그에는 절대 섞지 않음
+  const [joinToasts, setJoinToasts] = useState([]);
   const [nickname, setNickname] = useState('');
   const [joined, setJoined] = useState(false);
 
@@ -41,19 +49,21 @@ function App() {
         { id: nextMessageId(), time: Date.now(), ...msg },
       ]);
     }
-    function onUserJoined({ gameId, nickname: joinedNickname }) {
-      if (gameId !== GAME_ID) return;
-      setMessages((prev) => [
-        ...prev,
-        { id: nextMessageId(), system: true, text: `${joinedNickname}님이 입장했어요` },
-      ]);
-    }
-    function onUserLeft({ gameId, nickname: leftNickname }) {
-      if (gameId !== GAME_ID) return;
-      setMessages((prev) => [
-        ...prev,
-        { id: nextMessageId(), system: true, text: `${leftNickname}님이 나갔어요` },
-      ]);
+    // 다른 유저의 입장을 알리는 토스트. 서버가 본인은 제외하고 브로드캐스트하므로
+    // 별도 필터링 없이 큐에 추가하면 됨. 채팅 메시지(messages)에는 절대 넣지 않음
+    function onUserJoined(payload = {}) {
+      const { gameId: joinedGameId, nickname: joinedNickname } = payload;
+      if (joinedGameId && joinedGameId !== GAME_ID) return;
+      if (!joinedNickname) return;
+      setJoinToasts((prev) => {
+        const next = [
+          ...prev,
+          { id: nextToastId(), text: `${joinedNickname}님이 입장했어요` },
+        ];
+        return next.length > MAX_VISIBLE_JOIN_TOASTS
+          ? next.slice(next.length - MAX_VISIBLE_JOIN_TOASTS)
+          : next;
+      });
     }
 
     socket.on('connect', onConnect);
@@ -63,7 +73,6 @@ function App() {
     socket.on('users:count', onUsersCount);
     socket.on('chat:message', onChatMessage);
     socket.on('user:joined', onUserJoined);
-    socket.on('user:left', onUserLeft);
 
     return () => {
       socket.off('connect', onConnect);
@@ -73,19 +82,18 @@ function App() {
       socket.off('users:count', onUsersCount);
       socket.off('chat:message', onChatMessage);
       socket.off('user:joined', onUserJoined);
-      socket.off('user:left', onUserLeft);
     };
+  }, []);
+
+  const handleExpireToast = useCallback((id) => {
+    setJoinToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const handleJoin = (nick) => {
     setNickname(nick);
     setJoined(true);
     socket.emit('chat:join', { nickname: nick });
-    // 서버는 본인에게는 user:joined를 보내지 않으므로 로컬에서 직접 추가
-    setMessages((prev) => [
-      ...prev,
-      { id: nextMessageId(), system: true, text: `${nick}님이 입장했어요` },
-    ]);
+    socket.emit('user:join', { gameId: GAME_ID, nickname: nick });
   };
 
   const handleSend = (text) => {
@@ -105,6 +113,8 @@ function App() {
         nickname={nickname}
         onJoin={handleJoin}
         onSend={handleSend}
+        joinToasts={joinToasts}
+        onExpireToast={handleExpireToast}
       />
     </div>
   );
