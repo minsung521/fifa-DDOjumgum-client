@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { socket } from './socket';
+import { socket, GAME_ID } from './socket';
 import StatusPanel from './StatusPanel';
 import ChatPanel from './ChatPanel';
 import './App.css';
@@ -41,6 +41,20 @@ function App() {
         { id: nextMessageId(), time: Date.now(), ...msg },
       ]);
     }
+    function onUserJoined({ gameId, nickname: joinedNickname }) {
+      if (gameId !== GAME_ID) return;
+      setMessages((prev) => [
+        ...prev,
+        { id: nextMessageId(), system: true, text: `${joinedNickname}님이 입장했어요` },
+      ]);
+    }
+    function onUserLeft({ gameId, nickname: leftNickname }) {
+      if (gameId !== GAME_ID) return;
+      setMessages((prev) => [
+        ...prev,
+        { id: nextMessageId(), system: true, text: `${leftNickname}님이 나갔어요` },
+      ]);
+    }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
@@ -48,6 +62,8 @@ function App() {
     socket.on('status:update', onStatusUpdate);
     socket.on('users:count', onUsersCount);
     socket.on('chat:message', onChatMessage);
+    socket.on('user:joined', onUserJoined);
+    socket.on('user:left', onUserLeft);
 
     return () => {
       socket.off('connect', onConnect);
@@ -56,14 +72,15 @@ function App() {
       socket.off('status:update', onStatusUpdate);
       socket.off('users:count', onUsersCount);
       socket.off('chat:message', onChatMessage);
+      socket.off('user:joined', onUserJoined);
+      socket.off('user:left', onUserLeft);
     };
   }, []);
 
   const handleJoin = (nick) => {
     setNickname(nick);
     setJoined(true);
-    // 로컬 전용 입장 안내 (서버에 다른 유저의 입장/퇴장을 알리는 이벤트가
-    // 아직 없어서, 우선 본인 입장만 표시함 — 자세한 내용은 대화 마지막 참고)
+    // 서버는 본인에게는 user:joined를 보내지 않으므로 로컬에서 직접 추가
     setMessages((prev) => [
       ...prev,
       { id: nextMessageId(), system: true, text: `${nick}님이 입장했어요` },
