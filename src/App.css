@@ -62,16 +62,17 @@
     font-size: 14px;
   }
   
-  /* 상태 배지 — flat solid fill, 각진 모서리, 색+아이콘+텍스트 동시 노출 */
+  /* 상태 배지 — 칩 형태, 채도 유지, 색+아이콘+텍스트 동시 노출 */
   .status-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     align-self: flex-start;
     margin-bottom: var(--space-2);
-    padding: 8px 14px;
-    border-radius: var(--radius-flat);
-    background: var(--chip-color);
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--chip-color) 16%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--chip-color) 38%, transparent);
   }
 
   .status-chip-icon {
@@ -82,8 +83,7 @@
   .status-chip-text {
     font-size: 13px;
     font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--status-chip-ink);
+    color: var(--text-primary);
     white-space: nowrap;
   }
 
@@ -328,14 +328,17 @@
     box-shadow: 0 0 0 3px var(--accent-focus-ring);
   }
 
-  /* 닉네임 미설정 상태: 입력창은 모달을 여는 트리거 역할만, 실제 타이핑 불가 */
+  /* 닉네임 미설정 상태: 입력창은 모달을 여는 트리거 역할만, 실제 타이핑 불가 — 프라이머리(accent) 컬러로 CTA처럼 노출 */
   .chat-input-trigger {
     cursor: pointer;
-    color: var(--text-secondary);
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-text-on-accent);
+    font-weight: 700;
   }
 
   .chat-input-trigger::placeholder {
-    color: var(--text-secondary);
+    color: var(--accent-text-on-accent);
   }
 
   .chat-send-button {
