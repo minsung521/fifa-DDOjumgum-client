@@ -43,7 +43,7 @@
     background: var(--surface);
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
-    padding: var(--space-3);
+    padding: var(--space-4) var(--space-2);
     position: sticky;
     top: var(--space-3);
     display: flex;
@@ -62,79 +62,119 @@
     font-size: 14px;
   }
   
-  .status-badge-row {
-    display: flex;
+  /* 상태 배지 — flat solid fill(상태색 토큰 그대로), 각진 모서리, 테두리 없음 */
+  .status-chip {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: 6px;
+    align-self: flex-start;
     margin-bottom: var(--space-2);
+    padding: 8px 14px;
+    border-radius: var(--radius-flat);
+    background: var(--chip-color);
   }
-  
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  
-  .status-badge-text {
+
+  .status-chip-icon {
     font-size: 13px;
-    color: var(--text-secondary);
+    line-height: 1;
   }
-  
+
+  .status-chip-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--status-chip-ink);
+    white-space: nowrap;
+  }
+
   .status-online-message {
     margin: 0 0 var(--space-3);
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 400;
     color: var(--text-primary);
     line-height: 1.4;
   }
-  
+
   .status-countdown {
+    display: inline-block;
     font-family: var(--font-mono);
-    font-size: 44px;
+    font-size: 50px;
     font-weight: 700;
+    font-variant-numeric: tabular-nums;
     color: var(--text-primary);
-    letter-spacing: -0.5px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    padding-bottom: 6px;
+    border-bottom: 3px solid var(--border);
     margin-bottom: var(--space-2);
   }
-  
+
   .status-users-sentence {
     margin: 0;
     font-size: 14px;
+    font-weight: 400;
     color: var(--text-secondary);
   }
-  
+
+  .status-users-sentence strong {
+    font-weight: 700;
+    font-size: 1.05em;
+    color: var(--text-primary);
+  }
+
   .status-connection {
     margin: var(--space-3) 0 0;
     font-size: 13px;
+    font-weight: 700;
     color: var(--status-checking);
   }
-  
+
   /* 모바일 압축 바 */
   .status-compact {
     display: none;
   }
-  
+
   @media (max-width: 768px) {
     .status-compact {
       display: flex;
       align-items: center;
-      gap: var(--space-1);
+      gap: var(--space-2);
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: var(--space-2) var(--space-2);
+      border-bottom: 1px solid var(--hairline);
+      padding: var(--space-2);
     }
-  
+
+    .status-compact .status-chip {
+      margin-bottom: 0;
+    }
+
+    .status-chip-compact {
+      padding: 4px 10px;
+    }
+
     .status-compact-text {
       font-family: var(--font-mono);
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
       color: var(--text-primary);
     }
-  
+
+    .status-compact-users {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .status-compact-users strong {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
     .status-connection-compact {
       margin-left: auto;
       font-size: 12px;
+      font-weight: 700;
       color: var(--status-checking);
     }
   }
@@ -146,10 +186,12 @@
   .chat-panel {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     min-height: 0;
     height: 100svh;
     position: relative;
-    border-left: 1px solid var(--border);
+    background: var(--surface);
+    border-left: 1px solid var(--hairline);
   }
   
   @media (max-width: 768px) {
@@ -182,30 +224,37 @@
     flex-wrap: wrap;
     gap: 0 var(--space-1);
     font-size: 15px;
+    font-weight: 400;
     line-height: 1.5;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
   }
-  
+
   .chat-message-nickname {
     font-weight: 600;
     color: var(--text-primary);
   }
-  
+
   .chat-message-text {
+    font-weight: 400;
     color: var(--text-primary);
     word-break: break-word;
   }
-  
+
   .chat-message-time {
     font-size: 12px;
-    color: var(--text-disabled);
+    font-weight: 400;
+    color: var(--text-secondary);
     margin-left: auto;
     flex-shrink: 0;
   }
-  
+
   .chat-system-message {
     text-align: center;
     font-size: 12px;
-    color: var(--text-disabled);
+    font-weight: 400;
+    color: var(--text-secondary);
     padding: var(--space-1) 0;
   }
   
@@ -226,47 +275,200 @@
   
   .chat-input-row {
     display: flex;
+    align-items: center;
     gap: var(--space-1);
     padding: var(--space-2);
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--hairline);
     background: var(--surface);
     padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
   }
-  
+
+  /* 닉네임 확정 후 입력창 옆에 상시 노출되는 칩 (accent 용도: 사용자 본인 관련 인터랙티브 정보) */
+  .nickname-chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: var(--radius-flat);
+    background: var(--accent);
+    color: var(--accent-text-on-accent);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .nickname-chip-name {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .nickname-chip-suffix {
+    font-weight: 400;
+  }
+
   .chat-input {
     flex: 1;
     min-width: 0;
     padding: 10px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--bg);
+    background: var(--surface-2);
     color: var(--text-primary);
+    font-weight: 400;
     font-size: 15px;
   }
-  
+
   .chat-input::placeholder {
-    color: var(--text-disabled);
+    color: var(--text-secondary);
   }
-  
+
   .chat-input:focus-visible {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-focus-ring);
   }
-  
+
+  /* 닉네임 미설정 상태: 입력창은 모달을 여는 트리거 역할만, 실제 타이핑 불가 — 프라이머리(accent) 컬러로 CTA처럼 노출 */
+  .chat-input-trigger {
+    cursor: pointer;
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-text-on-accent);
+    font-weight: 700;
+  }
+
+  .chat-input-trigger::placeholder {
+    color: var(--accent-text-on-accent);
+  }
+
   .chat-send-button {
     flex-shrink: 0;
-    padding: 10px 18px;
-    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    border-radius: var(--radius-flat);
     border: none;
     background: var(--accent);
-    color: var(--text-primary);
-    font-weight: 600;
+    color: var(--accent-text-on-accent);
+    font-weight: 700;
+    letter-spacing: -0.02em;
     font-size: 15px;
     cursor: pointer;
     transition: background 0.15s ease;
   }
-  
+
   .chat-send-button:hover {
     background: var(--accent-hover);
+  }
+
+  .chat-send-button:disabled {
+    background: var(--surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+  }
+
+  /* ==========================================================
+     닉네임 입력 오버레이 (데스크톱: 중앙 모달 / 모바일: 하단 바텀시트)
+     ========================================================== */
+
+  .nickname-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--overlay-dim);
+    padding: var(--space-3);
+  }
+
+  .nickname-modal {
+    width: 100%;
+    max-width: 360px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .nickname-modal-title {
+    margin: 0 0 var(--space-3);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .nickname-modal-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-weight: 400;
+    font-size: 16px;
+    margin-bottom: var(--space-3);
+  }
+
+  .nickname-modal-input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  .nickname-modal-input:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-focus-ring);
+  }
+
+  .nickname-modal-actions {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .nickname-modal-cancel {
+    flex: 1;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .nickname-modal-submit {
+    flex: 2;
+    padding: 12px;
+    border-radius: var(--radius-flat);
+    border: none;
+    background: var(--accent);
+    color: var(--accent-text-on-accent);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .nickname-modal-submit:hover {
+    background: var(--accent-hover);
+  }
+
+  .nickname-modal-submit:disabled {
+    background: var(--surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .nickname-overlay {
+      align-items: flex-end;
+      padding: 0;
+    }
+
+    .nickname-modal {
+      max-width: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: var(--space-3);
+      padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+    }
   }

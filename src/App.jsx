@@ -80,6 +80,7 @@ function App() {
   const handleJoin = (nick) => {
     setNickname(nick);
     setJoined(true);
+    socket.emit('chat:join', { nickname: nick });
     // 서버는 본인에게는 user:joined를 보내지 않으므로 로컬에서 직접 추가
     setMessages((prev) => [
       ...prev,

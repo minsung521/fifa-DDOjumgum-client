@@ -10,7 +10,7 @@ function formatMessageTime(ts) {
 }
 
 export default function ChatPanel({ messages, joined, nickname, onJoin, onSend }) {
-  const [entering, setEntering] = useState(false); // 인라인 닉네임 입력 노출 여부
+  const [entering, setEntering] = useState(false); // 닉네임 입력 오버레이(모달/바텀시트) 노출 여부
   const [nicknameInput, setNicknameInput] = useState('');
   const [messageInput, setMessageInput] = useState('');
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -56,11 +56,17 @@ export default function ChatPanel({ messages, joined, nickname, onJoin, onSend }
     if (!joined) setEntering(true);
   };
 
+  const cancelEntering = () => {
+    setEntering(false);
+    setNicknameInput('');
+  };
+
   const submitJoin = () => {
     const trimmed = nicknameInput.trim();
     if (!trimmed) return;
     onJoin(trimmed);
     setEntering(false);
+    setNicknameInput('');
   };
 
   const submitMessage = () => {
@@ -99,34 +105,23 @@ export default function ChatPanel({ messages, joined, nickname, onJoin, onSend }
       )}
 
       <div className="chat-input-row">
-        {!joined && !entering && (
+        {!joined && (
           <input
-            className="chat-input"
-            placeholder="메시지를 보내려면 입장하세요"
+            className="chat-input chat-input-trigger"
+            placeholder="닉네임을 입력하고 대화에 참여하세요"
             onFocus={startEntering}
             onClick={startEntering}
             readOnly
+            aria-haspopup="dialog"
           />
-        )}
-
-        {!joined && entering && (
-          <>
-            <input
-              ref={nicknameInputRef}
-              className="chat-input"
-              placeholder="닉네임을 입력하세요"
-              value={nicknameInput}
-              onChange={(e) => setNicknameInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && submitJoin()}
-            />
-            <button className="chat-send-button" onClick={submitJoin}>
-              입장
-            </button>
-          </>
         )}
 
         {joined && (
           <>
+            <span className="nickname-chip">
+              <span className="nickname-chip-name">{nickname}</span>
+              <span className="nickname-chip-suffix">님으로 참여 중</span>
+            </span>
             <input
               className="chat-input"
               placeholder="메시지를 입력하세요"
@@ -140,6 +135,46 @@ export default function ChatPanel({ messages, joined, nickname, onJoin, onSend }
           </>
         )}
       </div>
+
+      {!joined && entering && (
+        <div
+          className="nickname-overlay"
+          onClick={cancelEntering}
+          onKeyDown={(e) => e.key === 'Escape' && cancelEntering()}
+          role="presentation"
+        >
+          <div
+            className="nickname-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="nickname-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="nickname-modal-title" className="nickname-modal-title">닉네임을 입력하세요</h2>
+            <input
+              ref={nicknameInputRef}
+              className="nickname-modal-input"
+              placeholder="예: 민성"
+              value={nicknameInput}
+              maxLength={16}
+              onChange={(e) => setNicknameInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submitJoin()}
+            />
+            <div className="nickname-modal-actions">
+              <button className="nickname-modal-cancel" onClick={cancelEntering}>
+                취소
+              </button>
+              <button
+                className="nickname-modal-submit"
+                onClick={submitJoin}
+                disabled={!nicknameInput.trim()}
+              >
+                입장하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

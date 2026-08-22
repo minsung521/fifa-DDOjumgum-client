@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
 const STATUS_CONFIG = {
-  online: { color: 'var(--status-normal)', label: '정상 운영' },
-  checking: { color: 'var(--status-checking)', label: '점검 중' },
-  scheduled: { color: 'var(--status-scheduled)', label: '점검 예정' },
+  online: { color: 'var(--status-normal)', icon: '🟢', label: '정상 운영 중' },
+  checking: { color: 'var(--status-checking)', icon: '🔴', label: '점검 중' },
+  scheduled: { color: 'var(--status-scheduled)', icon: '🟡', label: '점검 예정' },
 };
 
 function formatTime(ms) {
@@ -58,15 +58,18 @@ export default function StatusPanel({ status, usersCount, connectionState }) {
 
   return (
     <aside className="status-panel">
-      {/* 데스크톱: 통합 카드 */}
+      {/* 데스크톱: 통합 카드 (핵심 정보 클러스터) */}
       <div className="status-card">
-        <div className="status-badge-row">
-          <span className="status-dot" style={{ background: config.color }} />
-          <span className="status-badge-text">
+        <span
+          className="status-chip"
+          style={{ '--chip-color': config.color }}
+        >
+          <span className="status-chip-icon" aria-hidden="true">{config.icon}</span>
+          <span className="status-chip-text">
             {config.label}
             {!isOnline && <> · {countdownLabel}</>}
           </span>
-        </div>
+        </span>
 
         {isOnline ? (
           <p className="status-online-message">지금은 서버가 정상 운영 중이에요</p>
@@ -75,9 +78,11 @@ export default function StatusPanel({ status, usersCount, connectionState }) {
         )}
 
         <p className="status-users-sentence">
-          {isOnline
-            ? `${usersCount}명이 함께 있어요`
-            : `지금 ${usersCount}명이 함께 기다리는 중`}
+          {isOnline ? (
+            <>지금 <strong>{usersCount}</strong>명이 함께 있어요</>
+          ) : (
+            <>지금 <strong>{usersCount}</strong>명이 함께 기다리는 중</>
+          )}
         </p>
 
         {connMsg && <p className="status-connection">{connMsg}</p>}
@@ -85,16 +90,19 @@ export default function StatusPanel({ status, usersCount, connectionState }) {
 
       {/* 모바일: 압축 상단 바 */}
       <div className="status-compact">
-        <span className="status-dot" style={{ background: config.color }} />
+        <span
+          className="status-chip status-chip-compact"
+          style={{ '--chip-color': config.color }}
+        >
+          <span className="status-chip-icon" aria-hidden="true">{config.icon}</span>
+          <span className="status-chip-text">{config.label}</span>
+        </span>
         {!isOnline ? (
-          <span className="status-compact-text">
-            {formatTime(remaining)} · {usersCount}명
-          </span>
-        ) : (
-          <span className="status-compact-text">
-            정상 운영 · {usersCount}명
-          </span>
-        )}
+          <span className="status-compact-text">{formatTime(remaining)}</span>
+        ) : null}
+        <span className="status-compact-users">
+          <strong>{usersCount}</strong>명
+        </span>
         {connMsg && <span className="status-connection-compact">{connMsg}</span>}
       </div>
     </aside>
