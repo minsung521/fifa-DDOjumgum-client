@@ -33,7 +33,11 @@
 
   --radius: 12px;
   --radius-sm: 8px;
+  --radius-flat: 4px; /* 상태 배지/카운트다운/닉네임 칩/CTA 버튼 전용 — 플랫·각진 스타일 */
   --shadow-card: 0 1px 2px rgba(27, 31, 28, 0.04), 0 8px 24px rgba(27, 31, 28, 0.06);
+
+  /* 상태 배지(단색 채움) 위에 얹는 텍스트/아이콘 전용 — 세 상태색 모두에서 4.5:1+ 확보 */
+  --status-chip-ink: #0F1210;
 
   --font-sans: 'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
