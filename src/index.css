@@ -10,14 +10,18 @@
   --accent: #3DDC84;
   --accent-hover: #2FBE6C;
   --accent-focus-ring: rgba(61, 220, 132, 0.35);
+  --accent-text-on-accent: #142016; /* accent 배경 위 텍스트, 대비 확보용 */
 
-  /* 중립 톤 (라이트) */
-  --bg: #F7F9F7;
-  --surface: #FFFFFF;
+  /* 중립 톤 (라이트) — 배경 3단, 인접 레이어 간 6~8%+ 명도 차이 확보 */
+  --bg: #E2E9E4; /* Layer 0: 페이지 배경 */
+  --surface: #FFFFFF; /* Layer 1: 패널 배경 (상태 카드, 채팅 패널) */
+  --surface-2: #E8EDEA; /* Layer 2: 카드/아이템 배경 (메시지, 보조 버튼) */
   --border: #E3E7E2;
+  --hairline: rgba(0, 0, 0, 0.06); /* 배경 대비만으로 부족한 경계의 보조 구분선 */
   --text-primary: #1B1F1C;
   --text-secondary: #5B6560;
   --text-disabled: #9BA39D;
+  --overlay-dim: rgba(15, 20, 16, 0.48);
 
   /* 8px 그리드 */
   --space-1: 8px;
