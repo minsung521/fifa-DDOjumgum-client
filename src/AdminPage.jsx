@@ -30,15 +30,6 @@ const STATE_COLOR_VAR = {
   scheduled: 'var(--status-scheduled)',
 };
 
-// GET /admin/state의 currentStatus는 서버단 문서 예시상 'normal'을 쓰는데,
-// 소켓/상태변경 API는 'online'을 쓴다 — 실제 서버 배포 후 값이 다르면 여기만 고치면 됨
-const CURRENT_STATUS_ALIAS = {
-  normal: 'online',
-  online: 'online',
-  checking: 'checking',
-  scheduled: 'scheduled',
-};
-
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
 function formatDateTime(ms) {
@@ -225,10 +216,7 @@ export default function AdminPage() {
     }
   };
 
-  const fallbackState = adminState?.currentStatus
-    ? CURRENT_STATUS_ALIAS[adminState.currentStatus] ?? null
-    : null;
-  const currentState = liveStatus?.state ?? fallbackState;
+  const currentState = liveStatus?.state ?? adminState?.currentStatus ?? null;
 
   const fallbackEndTime =
     currentState === 'checking' && adminState?.activeReservation
@@ -272,9 +260,10 @@ export default function AdminPage() {
       return;
     }
 
-    const graceMinutes = reservationGrace.trim()
-      ? Number(reservationGrace)
-      : DEFAULT_GRACE_MINUTES;
+    // trim()으로 빈 입력만 걸러내고 숫자 자체는 그대로 씀 — "0"(완충 없이 즉시 복귀)도
+    // 유효한 값이라 value/기본값 사이를 falsy(0)로 판단하면 안 됨
+    const trimmedGrace = reservationGrace.trim();
+    const graceMinutes = trimmedGrace === '' ? DEFAULT_GRACE_MINUTES : Number(trimmedGrace);
     if (Number.isNaN(graceMinutes) || graceMinutes < 0) {
       showReservationMessage('error', '완충 시간은 0 이상의 숫자여야 합니다');
       return;
