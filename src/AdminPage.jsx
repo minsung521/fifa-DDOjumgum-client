@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { socket, GAME_ID } from './socket';
+import { socket, GAME_ID, SERVER_URL } from './socket';
 import './AdminPage.css';
 
-const SERVER_URL = 'https://fifa-ddojumgum-server.onrender.com';
 const ADMIN_KEY_STORAGE_KEY = 'ddojumgum_admin_key';
 const ADMIN_STATE_POLL_MS = 30000;
 const DEFAULT_GRACE_MINUTES = 60;
