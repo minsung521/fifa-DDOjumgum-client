@@ -9,6 +9,13 @@ export const SERVER_URL =
 // 확장할 때 이 값만 바꾸거나 라우트 파라미터로 대체하면 됨
 export const GAME_ID = 'fc-online';
 
+// 커뮤니티 홍보 링크(?src=dc, ?src=femco 등)의 유입 채널을 서버 로깅으로 넘기기 위한 값.
+// 없으면 키 자체를 생략 — null을 그대로 넘기면 socket.io가 문자열 "null"로 직렬화해버림
+const src = new URLSearchParams(window.location.search).get('src');
+
 export const socket = io(SERVER_URL, {
-  query: { gameId: GAME_ID },
+  query: {
+    gameId: GAME_ID,
+    ...(src ? { src } : {}),
+  },
 });
