@@ -105,20 +105,40 @@ function App() {
 
   return (
     <div className="app-shell">
-      <StatusPanel
-        status={status}
-        usersCount={usersCount}
-        connectionState={connectionState}
-      />
-      <ChatPanel
-        messages={messages}
-        joined={joined}
-        nickname={nickname}
-        onJoin={handleJoin}
-        onSend={handleSend}
-        joinToasts={joinToasts}
-        onExpireToast={handleExpireToast}
-      />
+      <header className="app-header">
+        <div className="app-brand">
+          <span className="brand-mark" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <h1>
+            또점검<span className="brand-period">.</span>
+          </h1>
+          <span className="brand-caption">기다림도, 함께.</span>
+        </div>
+        <span className="game-tag">FC ONLINE</span>
+      </header>
+      <main className="app-content">
+        <StatusPanel
+          status={status}
+          usersCount={usersCount}
+          connectionState={connectionState}
+        />
+        <ChatPanel
+          messages={messages}
+          joined={joined}
+          nickname={nickname}
+          onJoin={handleJoin}
+          onSend={handleSend}
+          joinToasts={joinToasts}
+          onExpireToast={handleExpireToast}
+        />
+      </main>
+      <footer className="app-footer">
+        <span>FC 온라인 점검 대기실</span>
+        <span>다음 킥오프까지, 같이 있어요.</span>
+      </footer>
     </div>
   );
 }
