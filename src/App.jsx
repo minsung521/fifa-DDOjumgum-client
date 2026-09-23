@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { socket, GAME_ID } from './socket';
+import { trackEvent } from './analytics';
 import StatusPanel from './StatusPanel';
 import ChatPanel from './ChatPanel';
 import './App.css';
@@ -90,6 +91,7 @@ function App() {
   }, []);
 
   const handleJoin = (nick) => {
+    trackEvent('join_chat');
     setNickname(nick);
     setJoined(true);
     socket.emit('chat:join', { nickname: nick });
@@ -97,6 +99,7 @@ function App() {
   };
 
   const handleSend = (text) => {
+    trackEvent('send_message');
     socket.emit('chat:message', { nickname: nicknameRef.current, message: text });
   };
 
