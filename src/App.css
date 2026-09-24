@@ -11,6 +11,10 @@
   --status-normal: #78d6a0;
   --status-checking: #ffa897;
   --status-scheduled: #efcc7f;
+  /* 상태 배지 배경용 연한 틴트 — 위 상태색과 같은 색상, 낮은 불투명도 */
+  --status-normal-tint: rgb(120 214 160 / 12%);
+  --status-checking-tint: rgb(255 168 151 / 14%);
+  --status-scheduled-tint: rgb(239 204 127 / 13%);
   --overlay-dim: rgb(5 9 6 / 78%);
   color-scheme: dark;
   color: var(--text-primary);
@@ -74,13 +78,6 @@
 .brand-mark i:nth-child(3) {
   height: 18px;
 }
-.brand-caption {
-  margin-left: 12px;
-  padding-left: 24px;
-  border-left: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 13px;
-}
 .game-tag {
   font: 700 11px var(--font-mono);
   letter-spacing: 1.3px;
@@ -100,31 +97,39 @@
 }
 
 .status-panel {
+  /* 좌측 컬럼은 상태 카드 높이만큼만 차지 */
+  align-self: start;
+  max-height: 100%;
   min-width: 0;
   overflow-y: auto;
   scrollbar-width: thin;
-}
-.status-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
 }
 .section-eyebrow {
   font: 600 11px var(--font-mono);
   letter-spacing: 1.8px;
   color: var(--text-secondary);
 }
-.status-game {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
 .scoreboard {
+  /* 상태별 색 — 상단 강조선과 상태 배지가 함께 따름. 상태 수신 전에는 중립색 */
+  --status-color: var(--border);
+  --status-tint: transparent;
   background: var(--surface);
   border: 1px solid var(--hairline);
-  border-top: 3px solid var(--accent);
+  border-top: 4px solid var(--status-color);
   border-radius: 4px 4px 16px 16px;
   padding: 28px;
+}
+.scoreboard-online {
+  --status-color: var(--status-normal);
+  --status-tint: var(--status-normal-tint);
+}
+.scoreboard-checking {
+  --status-color: var(--status-checking);
+  --status-tint: var(--status-checking-tint);
+}
+.scoreboard-scheduled {
+  --status-color: var(--status-scheduled);
+  --status-tint: var(--status-scheduled-tint);
 }
 .scoreboard-topline {
   display: flex;
@@ -134,22 +139,27 @@
   gap: 10px;
 }
 .scoreboard-caption {
-  font: 500 10px var(--font-mono);
-  letter-spacing: 1.6px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 .status-chip {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  color: var(--chip-color);
-  font-size: 12px;
-  font-weight: 600;
+  gap: 8px;
+  padding: 7px 14px 7px 12px;
+  border: 1px solid var(--status-color);
+  border-radius: var(--radius-flat);
+  background: var(--status-tint);
+  color: var(--status-color);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
   white-space: nowrap;
 }
 .status-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   background: currentColor;
   border-radius: 50%;
   flex-shrink: 0;
@@ -163,6 +173,8 @@
   margin: 0 0 12px;
 }
 .status-countdown {
+  display: flex;
+  align-items: flex-start;
   font-family: var(--font-mono);
   font-size: clamp(36px, 5.15vw, 74px);
   font-weight: 700;
@@ -171,20 +183,20 @@
   line-height: 1.15;
   white-space: nowrap;
 }
-.countdown-units {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  max-width: 380px;
+/* 숫자와 단위 라벨을 한 묶음으로 — 라벨은 해당 숫자 바로 아래 가운데 */
+.countdown-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.countdown-unit {
   margin-top: 12px;
+  /* 마지막 글자 뒤 자간만큼 왼쪽을 채워 시각적 중앙을 맞춤 */
+  padding-left: 1.7px;
   font: 500 9px var(--font-mono);
   letter-spacing: 1.7px;
+  line-height: 1;
   color: var(--text-disabled);
-}
-.countdown-units span:nth-child(2) {
-  text-align: center;
-}
-.countdown-units span:last-child {
-  text-align: right;
 }
 .status-audience {
   display: flex;
@@ -228,9 +240,6 @@
   font-weight: 750;
   margin: 0 0 12px;
 }
-.status-online-title span {
-  color: var(--accent);
-}
 .status-online-message {
   margin: 0;
   color: var(--text-secondary);
@@ -246,28 +255,6 @@
   margin-bottom: 12px;
   font: 500 34px var(--font-mono);
   color: var(--text-disabled);
-}
-.lobby-note {
-  margin: 34px 0 0 4px;
-}
-.lobby-note-rule {
-  width: 28px;
-  height: 2px;
-  display: block;
-  background: var(--accent);
-  margin-bottom: 18px;
-}
-.lobby-note p {
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 1.55;
-  letter-spacing: -1px;
-  margin: 0 0 16px;
-}
-.lobby-note-label {
-  font: 500 9px var(--font-mono);
-  color: var(--text-disabled);
-  letter-spacing: 2.2px;
 }
 
 /* A flat, continuous conversation with a fixed composer. */
@@ -312,11 +299,6 @@
   font-weight: 700;
   letter-spacing: -0.4px;
   margin: 0;
-}
-.chat-header-caption {
-  font-size: 11px;
-  color: var(--text-secondary);
-  white-space: nowrap;
 }
 .chat-list {
   flex: 1;
@@ -685,9 +667,6 @@
   .brand-mark {
     transform: scale(0.85) skew(-12deg);
   }
-  .brand-caption {
-    display: none;
-  }
   .game-tag {
     font-size: 9px;
     padding: 6px 8px;
@@ -699,18 +678,19 @@
     padding: 0;
   }
   .status-panel {
+    align-self: stretch;
+    max-height: none;
     overflow: visible;
     flex-shrink: 0;
   }
-  .status-heading,
-  .lobby-note,
   .scoreboard-caption,
-  .countdown-units,
+  .countdown-unit,
   .app-footer {
     display: none;
   }
   .scoreboard {
     border: 0;
+    border-top: 3px solid var(--status-color);
     border-radius: 0;
     background: var(--bg);
     padding: 18px 20px 16px;
@@ -725,7 +705,13 @@
     align-self: center;
   }
   .status-chip {
-    font-size: 11px;
+    font-size: 13px;
+    padding: 5px 10px 5px 9px;
+    gap: 6px;
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
   }
   .countdown-block {
     grid-column: 1 / -1;
@@ -802,9 +788,6 @@
   .chat-heading-icon {
     width: 21px;
     height: 21px;
-  }
-  .chat-header-caption {
-    font-size: 10px;
   }
   .chat-list {
     padding: 12px 10px;

@@ -100,9 +100,8 @@ export default function ChatPanel({
               <path d="M8 10h8M8 14h5" />
             </svg>
           </span>
-          <h2 id="chat-title">같이 기다려요</h2>
+          <h2 id="chat-title">채팅</h2>
         </div>
-        <span className="chat-header-caption">실시간 채팅</span>
       </header>
       <JoinToastStack toasts={joinToasts} onExpire={onExpireToast} />
 

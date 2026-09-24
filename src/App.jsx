@@ -115,7 +115,6 @@ function App() {
           <h1>
             또점검<span className="brand-period">.</span>
           </h1>
-          <span className="brand-caption">기다림도, 함께.</span>
         </div>
         <span className="game-tag">FC ONLINE</span>
       </header>
@@ -137,7 +136,6 @@ function App() {
       </main>
       <footer className="app-footer">
         <span>FC 온라인 점검 대기실</span>
-        <span>다음 킥오프까지, 같이 있어요.</span>
       </footer>
     </div>
   );
