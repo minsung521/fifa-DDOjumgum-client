@@ -86,12 +86,43 @@ export default function ChatPanel({
   };
 
   return (
-    <section className="chat-panel">
+    <section className="chat-panel" aria-labelledby="chat-title">
+      <header className="chat-header">
+        <div className="chat-heading">
+          <span className="chat-heading-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            >
+              <path d="M20 11.5a8 8 0 0 1-8 8H4v-8a8 8 0 0 1 16 0Z" />
+              <path d="M8 10h8M8 14h5" />
+            </svg>
+          </span>
+          <h2 id="chat-title">같이 기다려요</h2>
+        </div>
+        <span className="chat-header-caption">실시간 채팅</span>
+      </header>
       <JoinToastStack toasts={joinToasts} onExpire={onExpireToast} />
 
       <div className="chat-list" ref={listRef} onScroll={handleScroll}>
         {messages.length === 0 && (
-          <p className="chat-empty">아직 대화가 없어요. 첫 메시지를 남겨보세요</p>
+          <div className="chat-empty">
+            <span className="empty-chat-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M38 22a14 14 0 0 1-14 14H10V22a14 14 0 0 1 28 0Z" />
+                <path d="M17 20h14M17 26h9" />
+              </svg>
+            </span>
+            <strong>첫 이야기를 기다리고 있어요</strong>
+            <p>아직 대화가 없어요. 첫 메시지를 남겨보세요</p>
+          </div>
         )}
 
         {messages.map((m) =>
@@ -100,31 +131,36 @@ export default function ChatPanel({
               {m.text}
             </div>
           ) : (
-            <div key={m.id} className="chat-message">
+            <div
+              key={m.id}
+              className={`chat-message${joined && m.nickname === nickname ? ' chat-message-own' : ''}`}
+            >
               <span className="chat-message-nickname">{m.nickname}</span>
               <span className="chat-message-text">{m.message}</span>
-              <span className="chat-message-time">{formatMessageTime(m.time)}</span>
+              <span className="chat-message-time">
+                {formatMessageTime(m.time)}
+              </span>
             </div>
-          )
+          ),
         )}
       </div>
 
       {!isAtBottom && newMessageCount > 0 && (
         <button className="chat-new-message-badge" onClick={scrollToBottom}>
-          새 메시지
+          ↓ 새 메시지
         </button>
       )}
 
       <div className="chat-input-row">
         {!joined && (
-          <input
-            className="chat-input chat-input-trigger"
-            placeholder="닉네임을 입력하고 대화에 참여하세요"
-            onFocus={startEntering}
+          <button
+            className="chat-input-trigger"
             onClick={startEntering}
-            readOnly
             aria-haspopup="dialog"
-          />
+          >
+            <span>닉네임을 입력하고 대화에 참여하세요</span>
+            <span aria-hidden="true">↗</span>
+          </button>
         )}
 
         {joined && (
@@ -136,6 +172,7 @@ export default function ChatPanel({
             <input
               className="chat-input"
               placeholder="메시지를 입력하세요"
+              aria-label="채팅 메시지"
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submitMessage()}
@@ -161,18 +198,28 @@ export default function ChatPanel({
             aria-labelledby="nickname-modal-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 id="nickname-modal-title" className="nickname-modal-title">닉네임을 입력하세요</h2>
+            <span className="section-eyebrow">JOIN THE LOBBY</span>
+            <h2 id="nickname-modal-title" className="nickname-modal-title">
+              어떤 이름으로 함께할까요?
+            </h2>
+            <p className="nickname-modal-description">
+              대화에 사용할 닉네임을 입력하세요.
+            </p>
             <input
               ref={nicknameInputRef}
               className="nickname-modal-input"
               placeholder="예: 민성"
+              aria-label="닉네임"
               value={nicknameInput}
               maxLength={16}
               onChange={(e) => setNicknameInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submitJoin()}
             />
             <div className="nickname-modal-actions">
-              <button className="nickname-modal-cancel" onClick={cancelEntering}>
+              <button
+                className="nickname-modal-cancel"
+                onClick={cancelEntering}
+              >
                 취소
               </button>
               <button
