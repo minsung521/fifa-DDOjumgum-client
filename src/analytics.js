@@ -25,7 +25,7 @@ export function initAnalytics() {
 
   window.gtag('js', new Date());
   window.gtag('config', MEASUREMENT_ID, {
-    // 해시 라우팅(#admin) 때문에 page_view는 수동 전송 — 관리자 화면은 집계 제외
+    // page_view는 main.jsx에서 1회 수동 전송
     send_page_view: false,
     // ?src= 값을 GA4 기본 획득 보고서(세션 소스)에 바로 반영
     ...(SRC !== 'direct' ? { campaign_source: SRC, campaign_medium: 'community' } : {}),
@@ -39,9 +39,4 @@ export function trackPageView() {
     page_location: window.location.origin + window.location.pathname + window.location.search,
     page_title: document.title,
   });
-}
-
-export function trackEvent(name, params = {}) {
-  if (!initialized) return;
-  window.gtag('event', name, { traffic_src: SRC, ...params });
 }
